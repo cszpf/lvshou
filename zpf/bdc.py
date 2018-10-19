@@ -9,7 +9,7 @@ import os
 # Bdc其实是一种有监督的词袋模型
 class Featuers:
     
-    def __init__(self, k=80, ngram_range=(1, 2), _min=1, _max=0.9, label=None, Bdc=True,
+    def __init__(self, k=80, ngram_range=(1, 3), _min=2, _max=0.9, label=None, Bdc=True,
                  role='agent', debug=True, _maxfeature=50000):
         """初始化计算过程中的参数
         Parameters

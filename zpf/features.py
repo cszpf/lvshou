@@ -13,7 +13,7 @@ import jieba
 
 PATH1 = '../../zhijian_data/zhijian_data.csv'
 PATH2 = '../../zhijian_data/zhijian_data_20180709.csv'
-TestPath1 = '../../zhijian_data/._content_marktag_201807.csv'
+TestPath1 = '../../zhijian_data/._content_marktag_2018{:0>2d}.csv'
 TestPath2 = '../../zhijian_data/._content_marktag_201808.csv'
 
 class PreProcess:
@@ -56,7 +56,7 @@ class PreProcess:
             return ' '.join([word for word in jieba.cut(string) if word not in [' ', '\n']])
         jieba.load_userdict('setting/userdict2.txt')
         data1 = getAllSentence([PATH1, PATH2])
-        data2 = getAllSentence([TestPath2, TestPath1])
+        data2 = getAllSentence([TestPath1.format(i) for i in range(7, 11)])
         data2.drop(['content', 'mark_tag'], axis=1, inplace=True)
         data = pd.concat((data1, data2)).drop_duplicates('UUID')
         del(data1, data2)
@@ -195,19 +195,19 @@ class PreProcess:
             # train_data = self.set_label(AllData.drop(test_data.index), mode='test')
             # print('训练集数据规模:', train_data.shape)
             # train_data.to_csv('./Data/train_data', index=False)
-            # if self.label not in _:
-            #     continue
+            if self.label not in _:
+                continue
             print('===========\n%s'%_)
             all_data1 = pd.read_csv(_)
             train_data = pd.merge(all_data1.head(int(0.8*all_data1.shape[0])), AllData,
                                   how='left', on='UUID')
             # 欠采样
-            train_data0 = train_data[train_data['label'] == 0]
-            train_data1 = train_data[train_data['label'] == 1]
-            if train_data0.shape[0] > train_data1.shape[0]:
-                train_data0 = train_data0.sample(train_data1.shape[0])
-                train_data = pd.concat((train_data0, train_data1))
-            del(train_data1, train_data0)
+            # train_data0 = train_data[train_data['label'] == 0]
+            # train_data1 = train_data[train_data['label'] == 1]
+            # if train_data0.shape[0] > train_data1.shape[0]:
+            #     train_data0 = train_data0.sample(train_data1.shape[0])
+            #     train_data = pd.concat((train_data0, train_data1))
+            # del(train_data1, train_data0)
             print('训练集数据规模:', train_data.shape)
             train_data.to_csv('./Data/train_data', index=False)
             test_data = pd.merge(all_data1.tail(int(0.2 * all_data1.shape[0])+1), AllData,
@@ -224,6 +224,7 @@ class PreProcess:
                                              max_features, train_data.copy(), df_Bdc.copy())
             df_Bdc = df_Bdc.loc[list(set(df_vocab.keys()) & set(_vocab.keys()))]
             _vocab = {j: i for i, j in enumerate(df_Bdc.index)}
+            print(_vocab)
             vec = TfidfVectorizer(ngram_range=ngram_range, vocabulary=_vocab, use_idf=1,
                                   smooth_idf=1, sublinear_tf=1)
             # vec = CountVectorizer(ngram_range=ngram_range, vocabulary=_vocab)
@@ -286,8 +287,8 @@ class PreProcess:
         return data
 
 if __name__ == '__main__':
-    P = PreProcess(role='agent', label='投诉', tfbdc=1, debug=1)
+    P = PreProcess(role='agent', label='投诉', tfbdc=0, debug=1)
     # P.get_XY1()
     # P.getBdc()
     # df_mode = 'DF', df_min = 3, df_max = 0.5
-    P.get_XY(ngram_range=(1, 3), max_features=20000, mode='BDC', _min=0.2, _max=0.95)
+    P.get_XY(ngram_range=(1, 3), max_features=20000, mode='BDC', _min=0.4, _max=0.85)

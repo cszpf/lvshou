@@ -1,3 +1,4 @@
+'''合并数据集，并按违规类型对数据集进行划分'''
 # encoding=utf-8
 import pandas as pd
 import os
@@ -11,6 +12,12 @@ TestPath1 = '../../zhijian_data/._content_marktag_201807.csv'
 TestPath2 = '../../zhijian_data/._content_marktag_201808.csv'
 
 def load_data(path=PATH1):
+    '''
+    从csv文件中读取数据，并按合并相似违规类型
+    :param path:文件路径,str,default=PATH1
+    :return:
+    数据文件
+    '''
     try:
         with open(path, 'rb') as fr:
             data = pd.read_csv(fr, encoding="utf-8")
@@ -32,6 +39,13 @@ def load_data(path=PATH1):
     return data
 
 def divide_data(data, path, mode='train'):
+    '''
+    按违规类型对数据集进行划分
+    :param data: 数据集,pd.DataFrame()
+    :param path: 划分后的文件保存路径的父级目录
+    :param mode: 区分数据集的类型,str,in['train','test'],default='train'
+    :return:
+    '''
     if not os.path.exists(path):
         os.makedirs(path)
     all_rules = {}
@@ -51,8 +65,13 @@ def divide_data(data, path, mode='train'):
         with open(os.path.join(prepath, '{}_{}.csv'.format(_key.replace('/', '-'), mode)), 'w') as fw:
             temp_data.to_csv(fw, sep=',', index=False, encoding='utf-8')
 
-# 划分数据集
 def getAllSentence(dirs):
+    '''
+    合并数据集
+    :param dirs:待合并的数据集的路径列表,list
+    :return:
+    合并之后的数据集:已对UUID去重
+    '''
     data = load_data(dirs[0])
     print(data.shape)
     for i in range(1, len(dirs)):
@@ -69,9 +88,20 @@ def getAllSentence(dirs):
     print(data.shape)
     return data
 
-# 提取句子主干
 def getMainSentence(role, number=500):
+    '''
+    提取文本主干，跟实际应用无关
+    :param role:
+    :param number:
+    :return:
+    '''
     def fenci(x):
+        '''
+        对文本进行分词
+        :param x: 文本
+        :return:
+        分词之后的文本列表
+        '''
         return ' '.join([word for word in jieba.cut(x) if word not in (' ', '\n')])
 
     path1 = 'Tokens.csv'

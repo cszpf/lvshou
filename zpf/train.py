@@ -11,7 +11,7 @@ from Stacking import SBBTree
 import os
 
 PATH_TN = '../../../zhijian_data/Token'
-CV = 2
+CV = 5
 def acc(clf, Y, Y_pred):
     Y = list(Y); Y_pred = list(Y_pred)
     print(clf + 'precision:', precision_score(Y, Y_pred))
